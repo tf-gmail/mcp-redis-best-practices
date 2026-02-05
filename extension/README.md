@@ -11,6 +11,7 @@
 - 🤖 **AI-Powered** - Works with GitHub Copilot and other MCP-compatible AI assistants
 - 📚 **Comprehensive** - 23 rules across 11 categories
 - ⚡ **Zero Configuration** - Just install and start asking questions
+- 🚀 **No Dependencies** - Pure TypeScript/Node.js, no Python required
 
 ## Usage
 
@@ -45,14 +46,12 @@ Or use the command palette:
 ## Requirements
 
 - VS Code 1.99.0 or later
-- Python 3.10+ installed
 
 ## Extension Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `redisBestPractices.enabled` | `true` | Enable/disable the MCP server |
-| `redisBestPractices.pythonPath` | `python3` | Path to Python interpreter |
 
 ## License
 

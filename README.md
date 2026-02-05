@@ -3,8 +3,8 @@
 > Model Context Protocol (MCP) server providing Redis development best practices as AI tools. Integrates with GitHub Copilot, Claude Desktop, and other MCP-compatible clients.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![MCP](https://img.shields.io/badge/MCP-1.0-green.svg)](https://modelcontextprotocol.io/)
+[![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue.svg)](https://marketplace.visualstudio.com/items?itemName=tf-gmail.redis-best-practices-mcp)
 
 ## Overview
 
@@ -17,8 +17,9 @@ This project provides an MCP server that exposes Redis best practices as callabl
 - 🎯 **On-Demand Best Practices** - Get expert guidance when you need it
 - 📚 **Comprehensive Knowledge Base** - 23 rules across 11 categories
 - 🔍 **Searchable** - Find practices by keyword or use case
-- 💡 **Code Examples** - Real-world Python examples for every pattern
+- 💡 **Code Examples** - Real-world examples for every pattern
 - ⚠️ **Anti-Patterns** - Learn what to avoid
+- 🚀 **No Dependencies** - Pure TypeScript/Node.js, no Python required
 - 🔄 **Always Current** - Knowledge base updated independently of AI models
 
 ## Knowledge Base Coverage
@@ -41,7 +42,22 @@ This project provides an MCP server that exposes Redis best practices as callabl
 
 ## Quick Start
 
-### VS Code / GitHub Copilot
+### VS Code Extension (Recommended)
+
+The easiest way to use Redis Best Practices MCP:
+
+1. **Install from VS Code Marketplace:**
+   - Search for "Redis Best Practices MCP" in the Extensions view
+   - Or install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=tf-gmail.redis-best-practices-mcp)
+
+2. **Ask GitHub Copilot** about Redis:
+   ```
+   What's the best practice for Redis connection pooling?
+   Show me anti-patterns for Redis key naming
+   How should I structure keys for a multi-tenant application?
+   ```
+
+### Manual Setup (Development)
 
 1. **Clone the repository:**
    ```bash
@@ -49,20 +65,15 @@ This project provides an MCP server that exposes Redis best practices as callabl
    cd mcp-redis-best-practices
    ```
 
-2. **Install the MCP server:**
+2. **Install and build:**
    ```bash
-   cd mcp-server
-   pip install -e ".[dev]"
+   cd extension
+   npm install
+   npm run compile
+   npm run copy-knowledge
    ```
 
 3. **Open VS Code in the project directory.** The `.vscode/mcp.json` will automatically configure the MCP server.
-
-4. **Ask GitHub Copilot** about Redis:
-   ```
-   What's the best practice for Redis connection pooling?
-   Show me anti-patterns for Redis key naming
-   How should I structure keys for a multi-tenant application?
-   ```
 
 ### Claude Desktop
 
@@ -72,26 +83,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "redis-best-practices": {
-      "command": "python",
-      "args": ["-m", "redis_best_practices"],
-      "cwd": "/path/to/mcp-redis-best-practices/mcp-server"
+      "command": "node",
+      "args": ["/path/to/mcp-redis-best-practices/extension/dist/mcp/server.js"]
     }
   }
 }
 ```
 
 See [docs/claude-desktop-config.md](docs/claude-desktop-config.md) for detailed setup instructions.
-
-### Standalone Usage
-
-```bash
-# Run the MCP server
-cd mcp-server
-python -m redis_best_practices
-
-# Or using the installed command
-mcp-redis-best-practices
-```
 
 ---
 
@@ -156,92 +155,88 @@ Parameters: none
 
 ```
 mcp-redis-best-practices/
-├── mcp-server/
-│   ├── pyproject.toml              # Package configuration
-│   ├── build.py                    # AGENTS.md generator
-│   ├── AGENTS.md                   # Compiled knowledge base
+├── extension/                      # VS Code Extension (TypeScript)
+│   ├── package.json                # Extension manifest
+│   ├── tsconfig.json               # TypeScript configuration
 │   ├── src/
-│   │   └── redis_best_practices/
-│   │       ├── __init__.py
-│   │       ├── __main__.py         # Entry point for -m execution
-│   │       ├── server.py           # MCP server implementation
-│   │       ├── tools.py            # Tool definitions
-│   │       └── knowledge/
-│   │           ├── __init__.py     # KnowledgeBase class
-│   │           └── rules/          # Individual rule files
-│   │               ├── _sections.md
-│   │               ├── conn-pooling.md
-│   │               ├── data-key-naming.md
-│   │               └── ...
-│   └── tests/
-│       ├── conftest.py
-│       ├── test_knowledge.py
-│       ├── test_server.py
-│       └── test_agents.py
+│   │   ├── extension.ts            # VS Code extension entry
+│   │   └── mcp/
+│   │       ├── server.ts           # MCP server implementation
+│   │       ├── tools.ts            # Tool definitions
+│   │       ├── knowledge.ts        # KnowledgeBase class
+│   │       ├── types.ts            # Type definitions
+│   │       └── knowledge/rules/    # Markdown rule files
+│   │           ├── _sections.md
+│   │           ├── conn-pooling.md
+│   │           ├── data-key-naming.md
+│   │           └── ...
+│   └── dist/                       # Compiled output
+├── mcp-server/                     # Legacy Python implementation
 ├── .vscode/
 │   ├── mcp.json                    # MCP server configuration
-│   ├── extensions.json             # Recommended extensions
 │   └── settings.json               # VS Code settings
 └── docs/
     └── claude-desktop-config.md    # Claude Desktop setup guide
 ```
 
-### Building AGENTS.md
-
-The `AGENTS.md` file is compiled from individual rule files:
+### Building the Extension
 
 ```bash
-cd mcp-server
-python build.py
+cd extension
+npm install
+npm run compile
+npm run copy-knowledge
+```
+
+### Packaging for Distribution
+
+```bash
+cd extension
+npm run package
+# Creates redis-best-practices-mcp-X.X.X.vsix
 ```
 
 ### Running Tests
 
 ```bash
-cd mcp-server
-pip install -e ".[dev]"
-pytest
+cd extension
+npm test
 ```
 
 ### Adding New Rules
 
-1. Create a new markdown file in `mcp-server/src/redis_best_practices/knowledge/rules/`
+1. Create a new markdown file in `extension/src/mcp/knowledge/rules/`
 2. Use the naming convention: `{prefix}-{rule-name}.md`
 3. Include YAML frontmatter with title, impact, and tags
-4. Rebuild AGENTS.md: `python build.py`
+4. Rebuild: `npm run compile && npm run copy-knowledge`
 
 **Rule template:**
 
 ```markdown
 ---
 title: Your Rule Title
-impact: HIGH | MEDIUM | LOW
-tags:
-  - relevant
-  - tags
+impact: HIGH
+impactDescription: Short description of impact
+tags: relevant, tags, here
 ---
 
 ## Overview
 
 Brief description of the rule.
 
-## Best Practice
+**Correct:** Description of correct approach.
 
-Detailed explanation.
-
-### Good Pattern
 ```python
-# Example code
+# Example correct code
 ```
 
-### Anti-Pattern
+**Incorrect:** Description of what to avoid.
+
 ```python
-# What to avoid
+# Example incorrect code
 ```
 
-## Code Examples
-
-Additional examples...
+Reference: [Link Title](https://url)
 ```
 
 ---
@@ -256,19 +251,13 @@ The `.vscode/mcp.json` file configures the MCP server:
 {
   "servers": {
     "redis-best-practices": {
-      "command": "python3",
-      "args": ["-m", "redis_best_practices"],
-      "cwd": "${workspaceFolder}/mcp-server"
+      "command": "node",
+      "args": ["${workspaceFolder}/extension/dist/mcp/server.js"],
+      "description": "Redis development best practices as MCP tools"
     }
   }
 }
 ```
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MCP_LOG_LEVEL` | Logging level (DEBUG, INFO, WARNING, ERROR) | INFO |
 
 ---
 

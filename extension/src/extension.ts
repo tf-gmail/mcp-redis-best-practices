@@ -12,10 +12,11 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.StatusBarAlignment.Right,
         100
     );
-    statusBarItem.text = '$(database) Redis MCP';
-    statusBarItem.tooltip = 'Redis Best Practices MCP Server';
+    statusBarItem.text = '$(sync~spin) Redis MCP';
+    statusBarItem.tooltip = 'Redis Best Practices MCP Server - Setting up...';
     statusBarItem.command = 'redis-best-practices.showTopics';
     context.subscriptions.push(statusBarItem);
+    statusBarItem.show();
 
     // Get configuration
     const config = vscode.workspace.getConfiguration('redisBestPractices');
@@ -23,8 +24,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
     if (enabled) {
         // Register the MCP server
-        await registerMCPServer(context);
-        statusBarItem.show();
+        const success = await registerMCPServer(context);
+        if (success) {
+            statusBarItem.text = '$(database) Redis MCP ✓';
+            statusBarItem.tooltip = 'Redis Best Practices MCP Server - Running';
+        } else {
+            statusBarItem.text = '$(database) Redis MCP ✗';
+            statusBarItem.tooltip = 'Redis Best Practices MCP Server - Setup failed';
+            statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+        }
+    } else {
+        statusBarItem.hide();
     }
 
     // Register commands
@@ -51,73 +61,54 @@ export async function activate(context: vscode.ExtensionContext) {
     console.log('Redis Best Practices MCP extension activated');
 }
 
-async function registerMCPServer(context: vscode.ExtensionContext): Promise<void> {
-    const config = vscode.workspace.getConfiguration('redisBestPractices');
-    const pythonPath = config.get<string>('pythonPath', 'python3');
-
-    // Get the path to the bundled MCP server
-    const mcpServerPath = path.join(context.extensionPath, 'mcp-server');
+async function registerMCPServer(context: vscode.ExtensionContext): Promise<boolean> {
+    const mcpServerPath = path.join(context.extensionPath, 'dist', 'mcp', 'server.js');
     
-    // Check if mcp-server exists
+    // Check if the MCP server exists
     if (!fs.existsSync(mcpServerPath)) {
-        vscode.window.showWarningMessage(
+        vscode.window.showErrorMessage(
             'Redis Best Practices: MCP server not found. Please reinstall the extension.'
         );
-        return;
+        return false;
     }
 
-    // The MCP server configuration is registered via .vscode/mcp.json
-    // For VS Code's built-in MCP support, we update the workspace configuration
-    try {
-        const mcpConfig = {
-            servers: {
-                'redis-best-practices': {
-                    command: pythonPath,
-                    args: ['-m', 'redis_best_practices'],
-                    cwd: mcpServerPath
-                }
-            }
-        };
+    // Write MCP configuration to workspace
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+        const vscodePath = path.join(workspaceFolders[0].uri.fsPath, '.vscode');
+        const mcpConfigPath = path.join(vscodePath, 'mcp.json');
 
-        // Write MCP configuration to workspace if it doesn't exist
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (workspaceFolders && workspaceFolders.length > 0) {
-            const vscodePath = path.join(workspaceFolders[0].uri.fsPath, '.vscode');
-            const mcpConfigPath = path.join(vscodePath, 'mcp.json');
+        // Create .vscode folder if it doesn't exist
+        if (!fs.existsSync(vscodePath)) {
+            fs.mkdirSync(vscodePath, { recursive: true });
+        }
 
-            // Only create if .vscode folder exists and mcp.json doesn't have our server
-            if (fs.existsSync(vscodePath)) {
-                let existingConfig: any = { servers: {} };
-                
-                if (fs.existsSync(mcpConfigPath)) {
-                    try {
-                        const content = fs.readFileSync(mcpConfigPath, 'utf8');
-                        existingConfig = JSON.parse(content);
-                    } catch {
-                        // If parsing fails, start fresh
-                    }
-                }
-
-                // Add our server if not present
-                if (!existingConfig.servers?.['redis-best-practices']) {
-                    existingConfig.servers = existingConfig.servers || {};
-                    existingConfig.servers['redis-best-practices'] = mcpConfig.servers['redis-best-practices'];
-                    
-                    fs.writeFileSync(
-                        mcpConfigPath,
-                        JSON.stringify(existingConfig, null, 2)
-                    );
-                }
+        let existingConfig: { servers?: Record<string, unknown> } = { servers: {} };
+        
+        if (fs.existsSync(mcpConfigPath)) {
+            try {
+                const content = fs.readFileSync(mcpConfigPath, 'utf8');
+                existingConfig = JSON.parse(content);
+            } catch {
+                // If parsing fails, start fresh
             }
         }
 
-        statusBarItem.text = '$(database) Redis MCP ✓';
-        statusBarItem.backgroundColor = undefined;
-    } catch (error) {
-        console.error('Failed to register MCP server:', error);
-        statusBarItem.text = '$(database) Redis MCP ✗';
-        statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+        // Add our server configuration
+        existingConfig.servers = existingConfig.servers || {};
+        existingConfig.servers['redis-best-practices'] = {
+            command: 'node',
+            args: [mcpServerPath],
+            description: 'Redis development best practices as MCP tools'
+        };
+        
+        fs.writeFileSync(
+            mcpConfigPath,
+            JSON.stringify(existingConfig, null, 2)
+        );
     }
+
+    return true;
 }
 
 async function showTopics(): Promise<void> {
@@ -170,8 +161,18 @@ async function showTopics(): Promise<void> {
 
 async function restartServer(context: vscode.ExtensionContext): Promise<void> {
     statusBarItem.text = '$(sync~spin) Redis MCP';
-    await registerMCPServer(context);
-    vscode.window.showInformationMessage('Redis Best Practices MCP server restarted');
+    statusBarItem.tooltip = 'Redis Best Practices MCP Server - Restarting...';
+    const success = await registerMCPServer(context);
+    if (success) {
+        statusBarItem.text = '$(database) Redis MCP ✓';
+        statusBarItem.tooltip = 'Redis Best Practices MCP Server - Running';
+        statusBarItem.backgroundColor = undefined;
+        vscode.window.showInformationMessage('Redis Best Practices MCP server restarted');
+    } else {
+        statusBarItem.text = '$(database) Redis MCP ✗';
+        statusBarItem.tooltip = 'Redis Best Practices MCP Server - Failed';
+        statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    }
 }
 
 export function deactivate() {

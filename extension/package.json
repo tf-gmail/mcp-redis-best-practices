@@ -55,29 +55,14 @@
           "type": "boolean",
           "default": true,
           "description": "Enable Redis Best Practices MCP server"
-        },
-        "redisBestPractices.pythonPath": {
-          "type": "string",
-          "default": "python3",
-          "description": "Path to Python interpreter"
         }
       }
-    },
-    "languageModelTools": [
-      {
-        "name": "get_redis_best_practice",
-        "displayName": "Get Redis Best Practice",
-        "canBeReferencedInPrompt": true,
-        "toolReferenceName": "redisBestPractice",
-        "icon": "$(database)",
-        "tags": ["redis", "best-practices", "database"],
-        "modelDescription": "Get Redis best practices for a specific topic like key-naming, connection-pooling, pipelining, memory management, security, JSON, streams, clustering, vector-search, or semantic-cache."
-      }
-    ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run copy-knowledge",
     "compile": "tsc -p ./",
+    "copy-knowledge": "mkdir -p dist/mcp/knowledge && cp -r src/mcp/knowledge/rules dist/mcp/knowledge/",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
     "package": "vsce package",
@@ -88,11 +73,12 @@
     "@types/vscode": "^1.99.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
+    "@vscode/vsce": "^2.22.0",
     "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "@vscode/vsce": "^2.22.0"
+    "sharp": "^0.34.5",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@vscode/python-extension": "^1.0.5"
+    "@modelcontextprotocol/sdk": "^1.12.0"
   }
 }

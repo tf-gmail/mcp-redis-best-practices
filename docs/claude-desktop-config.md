@@ -10,40 +10,41 @@ To use the Redis Best Practices MCP server with Claude Desktop, add the followin
 
 ## Configuration
 
-### Option 1: Using uvx (Recommended)
+### Option 1: Using local clone (Recommended)
+
+First, clone and build the repository:
+
+```bash
+git clone https://github.com/tf-gmail/mcp-redis-best-practices.git
+cd mcp-redis-best-practices/extension
+npm install
+npm run compile
+npm run copy-knowledge
+```
+
+Then add to your Claude config:
 
 ```json
 {
   "mcpServers": {
     "redis-best-practices": {
-      "command": "uvx",
+      "command": "node",
+      "args": ["/path/to/mcp-redis-best-practices/extension/dist/mcp/server.js"]
+    }
+  }
+}
+```
+
+Replace `/path/to` with the actual path to where you cloned the repository.
+
+### Option 2: Using npx (if published to npm)
+
+```json
+{
+  "mcpServers": {
+    "redis-best-practices": {
+      "command": "npx",
       "args": ["mcp-redis-best-practices"]
-    }
-  }
-}
-```
-
-### Option 2: Using pip installed package
-
-```json
-{
-  "mcpServers": {
-    "redis-best-practices": {
-      "command": "python",
-      "args": ["-m", "redis_best_practices"]
-    }
-  }
-}
-```
-
-### Option 3: Using local development version
-
-```json
-{
-  "mcpServers": {
-    "redis-best-practices": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/mcp-redis-best-practices/mcp-server", "mcp-redis-best-practices"]
     }
   }
 }
@@ -61,10 +62,11 @@ After configuring, restart Claude Desktop. You should see the Redis Best Practic
 
 If the MCP server doesn't appear:
 
-1. Check that Python 3.10+ is installed
+1. Check that Node.js is installed (`node --version`)
 2. Verify the path in the configuration is correct
 3. Check Claude Desktop logs for errors
 4. Try running the server manually to verify it works:
    ```bash
-   uvx mcp-redis-best-practices
+   cd /path/to/mcp-redis-best-practices/extension
+   node dist/mcp/server.js
    ```

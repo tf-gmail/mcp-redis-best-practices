@@ -1,20 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <!-- Background -->
-  <rect width="128" height="128" rx="16" fill="#DC382D"/>
-  
-  <!-- Redis logo simplified - stacked boxes -->
-  <g fill="#FFFFFF">
+  <!-- Official Redis logo style - stacked diamonds -->
+  <g transform="translate(64, 64)">
     <!-- Top diamond -->
-    <path d="M64 20 L94 40 L64 60 L34 40 Z" opacity="0.9"/>
+    <polygon points="0,-45 40,-25 0,-5 -40,-25" fill="#A41E11"/>
+    <polygon points="0,-5 40,-25 40,-15 0,5" fill="#7A170D"/>
+    <polygon points="0,-5 -40,-25 -40,-15 0,5" fill="#D82C20"/>
     
-    <!-- Middle layer -->
-    <path d="M34 50 L64 70 L94 50 L94 60 L64 80 L34 60 Z" opacity="0.75"/>
+    <!-- Middle diamond -->
+    <polygon points="0,-20 40,0 0,20 -40,0" fill="#A41E11"/>
+    <polygon points="0,20 40,0 40,10 0,30" fill="#7A170D"/>
+    <polygon points="0,20 -40,0 -40,10 0,30" fill="#D82C20"/>
     
-    <!-- Bottom layer -->
-    <path d="M34 70 L64 90 L94 70 L94 80 L64 100 L34 80 Z" opacity="0.6"/>
+    <!-- Bottom diamond -->
+    <polygon points="0,5 40,25 0,45 -40,25" fill="#A41E11"/>
+    <polygon points="0,45 40,25 40,35 0,55" fill="#7A170D"/>
+    <polygon points="0,45 -40,25 -40,35 0,55" fill="#D82C20"/>
   </g>
-  
-  <!-- MCP indicator -->
-  <circle cx="100" cy="100" r="18" fill="#4CAF50"/>
-  <text x="100" y="106" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">MCP</text>
 </svg>
