@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "redis-best-practices": {
+      "command": "uvx",
+      "args": ["mcp-redis-best-practices"],
+      "description": "Redis development best practices as MCP tools"
+    }
+  }
+}

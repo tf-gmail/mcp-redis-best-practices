@@ -1,0 +1,98 @@
+{
+  "name": "redis-best-practices-mcp",
+  "displayName": "Redis Best Practices MCP",
+  "description": "MCP server providing Redis development best practices for GitHub Copilot and AI assistants",
+  "version": "0.1.0",
+  "publisher": "tf-gmail",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#DC382D",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tf-gmail/mcp-redis-best-practices"
+  },
+  "bugs": {
+    "url": "https://github.com/tf-gmail/mcp-redis-best-practices/issues"
+  },
+  "homepage": "https://github.com/tf-gmail/mcp-redis-best-practices#readme",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Education",
+    "Other"
+  ],
+  "keywords": [
+    "redis",
+    "mcp",
+    "best-practices",
+    "copilot",
+    "ai",
+    "database"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "redis-best-practices.showTopics",
+        "title": "Redis: Show Best Practice Topics"
+      },
+      {
+        "command": "redis-best-practices.restartServer",
+        "title": "Redis: Restart MCP Server"
+      }
+    ],
+    "configuration": {
+      "title": "Redis Best Practices MCP",
+      "properties": {
+        "redisBestPractices.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Redis Best Practices MCP server"
+        },
+        "redisBestPractices.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to Python interpreter"
+        }
+      }
+    },
+    "languageModelTools": [
+      {
+        "name": "get_redis_best_practice",
+        "displayName": "Get Redis Best Practice",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "redisBestPractice",
+        "icon": "$(database)",
+        "tags": ["redis", "best-practices", "database"],
+        "modelDescription": "Get Redis best practices for a specific topic like key-naming, connection-pooling, pipelining, memory management, security, JSON, streams, clustering, vector-search, or semantic-cache."
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.99.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {
+    "@vscode/python-extension": "^1.0.5"
+  }
+}

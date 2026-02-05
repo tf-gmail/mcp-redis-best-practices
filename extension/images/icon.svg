@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="16" fill="#DC382D"/>
+  
+  <!-- Redis logo simplified - stacked boxes -->
+  <g fill="#FFFFFF">
+    <!-- Top diamond -->
+    <path d="M64 20 L94 40 L64 60 L34 40 Z" opacity="0.9"/>
+    
+    <!-- Middle layer -->
+    <path d="M34 50 L64 70 L94 50 L94 60 L64 80 L34 60 Z" opacity="0.75"/>
+    
+    <!-- Bottom layer -->
+    <path d="M34 70 L64 90 L94 70 L94 80 L64 100 L34 80 Z" opacity="0.6"/>
+  </g>
+  
+  <!-- MCP indicator -->
+  <circle cx="100" cy="100" r="18" fill="#4CAF50"/>
+  <text x="100" y="106" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">MCP</text>
+</svg>
