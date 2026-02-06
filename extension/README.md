@@ -2,8 +2,8 @@
 
 > Get expert Redis guidance directly in your IDE through GitHub Copilot and AI assistants.
 
-[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/tf-gmail.redis-best-practices-mcp)](https://marketplace.visualstudio.com/items?itemName=tf-gmail.redis-best-practices-mcp)
-[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/tf-gmail.redis-best-practices-mcp)](https://marketplace.visualstudio.com/items?itemName=tf-gmail.redis-best-practices-mcp)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/ThomasFindelkind.redis-best-practices-mcp)](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
+[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/ThomasFindelkind.redis-best-practices-mcp)](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---

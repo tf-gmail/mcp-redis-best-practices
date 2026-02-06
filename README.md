@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-1.0-green.svg)](https://modelcontextprotocol.io/)
-[![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue.svg)](https://marketplace.visualstudio.com/items?itemName=tf-gmail.redis-best-practices-mcp)
+[![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue.svg)](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
 
 ## Overview
 
@@ -48,7 +48,7 @@ The easiest way to use Redis Best Practices MCP:
 
 1. **Install from VS Code Marketplace:**
    - Search for "Redis Best Practices MCP" in the Extensions view
-   - Or install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=tf-gmail.redis-best-practices-mcp)
+   - Or install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
 
 2. **Ask GitHub Copilot** about Redis:
    ```
