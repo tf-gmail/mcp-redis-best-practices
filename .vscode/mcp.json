@@ -2,7 +2,9 @@
   "servers": {
     "redis-best-practices": {
       "command": "node",
-      "args": ["${workspaceFolder}/extension/dist/mcp/server.js"],
+      "args": [
+        "/Users/thomas.findelkind/.vscode/extensions/thomasfindelkind.redis-best-practices-mcp-0.1.3/dist/mcp/server.js"
+      ],
       "description": "Redis development best practices as MCP tools"
     }
   }

@@ -8,6 +8,10 @@
 
 ---
 
+> **💡 TIP:** Run **"Redis: Setup Copilot Instructions"** from the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) to make Copilot automatically use Redis tools when writing Redis code!
+
+---
+
 ## ✨ Features
 
 ### 🎯 AI-Powered Redis Expertise
@@ -129,15 +133,7 @@ Finds relevant rules even if you don't know the exact topic name.
 
 ---
 
-## � Pro Tip: Auto-Trigger Best Practices
-
-Run **"Redis: Setup Copilot Instructions"** from the Command Palette to automatically create a `.github/copilot-instructions.md` file that makes Copilot use Redis tools whenever it detects Redis-related code.
-
-This ensures Copilot proactively checks best practices instead of relying on potentially outdated training data.
-
----
-
-## �🔧 Extension Settings
+## 🔧 Extension Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|

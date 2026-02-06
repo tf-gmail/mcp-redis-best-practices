@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-02-06
+
+### Changed
+
+- Added prominent TIP at top of README highlighting "Redis: Setup Copilot Instructions" command
+- Improved discoverability of auto-trigger feature
+
 ## [0.1.3] - 2026-02-06
 
 ### Added
