@@ -59,6 +59,7 @@ Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`):
 
 - **Redis: Show Best Practice Topics** - Browse all available topics
 - **Redis: Restart MCP Server** - Restart the MCP server if needed
+- **Redis: Setup Copilot Instructions** - Create/update `.github/copilot-instructions.md` to make Copilot automatically use Redis tools
 
 ---
 
@@ -130,19 +131,7 @@ Finds relevant rules even if you don't know the exact topic name.
 
 ## � Pro Tip: Auto-Trigger Best Practices
 
-To make Copilot automatically use the Redis tools when writing Redis code, add this to your project's `.github/copilot-instructions.md`:
-
-```markdown
-## Redis Development
-
-When writing, reviewing, or debugging code that uses Redis:
-1. Use the `get_best_practice` tool to check relevant patterns
-2. Use the `get_anti_patterns` tool to avoid common mistakes
-3. Use the `get_code_example` tool for production-ready snippets
-
-Always consult Redis best practices for: connection pooling, key naming, 
-data structure selection, memory management, and security.
-```
+Run **"Redis: Setup Copilot Instructions"** from the Command Palette to automatically create a `.github/copilot-instructions.md` file that makes Copilot use Redis tools whenever it detects Redis-related code.
 
 This ensures Copilot proactively checks best practices instead of relying on potentially outdated training data.
 

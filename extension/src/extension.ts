@@ -40,7 +40,8 @@ export async function activate(context: vscode.ExtensionContext) {
     // Register commands
     context.subscriptions.push(
         vscode.commands.registerCommand('redis-best-practices.showTopics', showTopics),
-        vscode.commands.registerCommand('redis-best-practices.restartServer', () => restartServer(context))
+        vscode.commands.registerCommand('redis-best-practices.restartServer', () => restartServer(context)),
+        vscode.commands.registerCommand('redis-best-practices.setupCopilotInstructions', setupCopilotInstructions)
     );
 
     // Listen for configuration changes
@@ -173,6 +174,58 @@ async function restartServer(context: vscode.ExtensionContext): Promise<void> {
         statusBarItem.tooltip = 'Redis Best Practices MCP Server - Failed';
         statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
     }
+}
+
+const COPILOT_INSTRUCTIONS_CONTENT = `
+## Redis Development
+
+When writing, reviewing, or debugging code that uses Redis:
+1. Use the \`get_best_practice\` tool to check relevant patterns
+2. Use the \`get_anti_patterns\` tool to avoid common mistakes  
+3. Use the \`get_code_example\` tool for production-ready snippets
+
+Always consult Redis best practices for: connection pooling, key naming,
+data structure selection, memory management, and security.
+`;
+
+async function setupCopilotInstructions(): Promise<void> {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        vscode.window.showErrorMessage('No workspace folder open. Please open a folder first.');
+        return;
+    }
+
+    const workspacePath = workspaceFolders[0].uri.fsPath;
+    const githubPath = path.join(workspacePath, '.github');
+    const instructionsPath = path.join(githubPath, 'copilot-instructions.md');
+
+    // Create .github folder if it doesn't exist
+    if (!fs.existsSync(githubPath)) {
+        fs.mkdirSync(githubPath, { recursive: true });
+    }
+
+    if (fs.existsSync(instructionsPath)) {
+        // Check if Redis instructions already exist
+        const existingContent = fs.readFileSync(instructionsPath, 'utf8');
+        if (existingContent.includes('Redis Development') || existingContent.includes('get_best_practice')) {
+            vscode.window.showInformationMessage('Redis instructions already exist in copilot-instructions.md');
+            return;
+        }
+
+        // Append to existing file
+        const newContent = existingContent + '\n' + COPILOT_INSTRUCTIONS_CONTENT;
+        fs.writeFileSync(instructionsPath, newContent);
+        vscode.window.showInformationMessage('Redis instructions added to existing copilot-instructions.md');
+    } else {
+        // Create new file
+        const header = '# Copilot Instructions\n\nThese instructions help GitHub Copilot provide better assistance for this project.\n';
+        fs.writeFileSync(instructionsPath, header + COPILOT_INSTRUCTIONS_CONTENT);
+        vscode.window.showInformationMessage('Created .github/copilot-instructions.md with Redis instructions');
+    }
+
+    // Open the file
+    const doc = await vscode.workspace.openTextDocument(instructionsPath);
+    await vscode.window.showTextDocument(doc);
 }
 
 export function deactivate() {
