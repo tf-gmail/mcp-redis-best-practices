@@ -128,7 +128,27 @@ Finds relevant rules even if you don't know the exact topic name.
 
 ---
 
-## 🔧 Extension Settings
+## � Pro Tip: Auto-Trigger Best Practices
+
+To make Copilot automatically use the Redis tools when writing Redis code, add this to your project's `.github/copilot-instructions.md`:
+
+```markdown
+## Redis Development
+
+When writing, reviewing, or debugging code that uses Redis:
+1. Use the `get_best_practice` tool to check relevant patterns
+2. Use the `get_anti_patterns` tool to avoid common mistakes
+3. Use the `get_code_example` tool for production-ready snippets
+
+Always consult Redis best practices for: connection pooling, key naming, 
+data structure selection, memory management, and security.
+```
+
+This ensures Copilot proactively checks best practices instead of relying on potentially outdated training data.
+
+---
+
+## �🔧 Extension Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
