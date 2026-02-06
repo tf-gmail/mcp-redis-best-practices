@@ -2,7 +2,7 @@
   "name": "redis-best-practices-mcp",
   "displayName": "Redis Best Practices MCP",
   "description": "Get expert Redis guidance in your IDE. 29 best practices for data structures, memory, security, vector search, and more - powered by MCP for GitHub Copilot.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "ThomasFindelkind",
   "license": "MIT",
   "icon": "images/icon.png",
