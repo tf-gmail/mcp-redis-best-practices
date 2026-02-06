@@ -1,7 +1,7 @@
 {
   "name": "redis-best-practices-mcp",
   "displayName": "Redis Best Practices MCP",
-  "description": "MCP server providing Redis development best practices for GitHub Copilot and AI assistants",
+  "description": "Get expert Redis guidance in your IDE. 29 best practices for data structures, memory, security, vector search, and more - powered by MCP for GitHub Copilot.",
   "version": "0.1.0",
   "publisher": "tf-gmail",
   "license": "MIT",
@@ -25,6 +25,7 @@
     "Programming Languages",
     "Linters",
     "Education",
+    "Machine Learning",
     "Other"
   ],
   "keywords": [
@@ -33,7 +34,11 @@
     "best-practices",
     "copilot",
     "ai",
-    "database"
+    "database",
+    "cache",
+    "nosql",
+    "vector-search",
+    "model-context-protocol"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
