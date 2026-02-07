@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
 using Microsoft.VisualStudio.Extensibility.Shell;
+using Microsoft.VisualStudio.ProjectSystem.Query;
 
 namespace RedisBestPracticesMCP;
 
@@ -24,10 +25,19 @@ public class SetupMCPServerCommand : Command
     {
         try
         {
-            // Get the solution directory
-            var solutionPath = await this.Extensibility.Workspaces().GetSolutionPathAsync(cancellationToken);
+            // Query for the solution path using ProjectSystem.Query
+            string? solutionDir = null;
             
-            if (string.IsNullOrEmpty(solutionPath))
+            var result = await this.Extensibility.Workspaces().QuerySolutionAsync(
+                solution => solution.With(s => s.Path),
+                cancellationToken);
+            
+            if (result?.Path != null)
+            {
+                solutionDir = Path.GetDirectoryName(result.Path);
+            }
+
+            if (string.IsNullOrEmpty(solutionDir))
             {
                 await this.Extensibility.Shell().ShowPromptAsync(
                     "No solution is currently open. Please open a solution first.",
@@ -36,7 +46,6 @@ public class SetupMCPServerCommand : Command
                 return;
             }
 
-            var solutionDir = Path.GetDirectoryName(solutionPath)!;
             var mcpConfigPath = Path.Combine(solutionDir, ".mcp.json");
 
             // Get the bundled MCP server path
