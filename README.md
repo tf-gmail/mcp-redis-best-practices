@@ -1,10 +1,12 @@
 # MCP Redis Best Practices
 
-> Model Context Protocol (MCP) server providing Redis development best practices as AI tools. Integrates with GitHub Copilot, Claude Desktop, and other MCP-compatible clients.
+> Model Context Protocol (MCP) server providing Redis development best practices as AI tools. Integrates with GitHub Copilot in **VS Code** and **Visual Studio**, Claude Desktop, and other MCP-compatible clients.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-1.0-green.svg)](https://modelcontextprotocol.io/)
 [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue.svg)](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
+[![Visual Studio](https://img.shields.io/badge/Visual%20Studio-Extension-purple.svg)](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-vs)
+[![npm](https://img.shields.io/badge/npm-@redis--best--practices/mcp--server-red.svg)](https://www.npmjs.com/package/@redis-best-practices/mcp-server)
 
 ## Overview
 
@@ -15,12 +17,13 @@ This project provides an MCP server that exposes Redis best practices as callabl
 ## Features
 
 - 🎯 **On-Demand Best Practices** - Get expert guidance when you need it
-- 📚 **Comprehensive Knowledge Base** - 23 rules across 11 categories
+- 📚 **Comprehensive Knowledge Base** - 29 rules across 11 categories
 - 🔍 **Searchable** - Find practices by keyword or use case
 - 💡 **Code Examples** - Real-world examples for every pattern
 - ⚠️ **Anti-Patterns** - Learn what to avoid
 - 🚀 **No Dependencies** - Pure TypeScript/Node.js, no Python required
 - 🔄 **Always Current** - Knowledge base updated independently of AI models
+- 💻 **Multi-IDE Support** - Works in VS Code AND Visual Studio
 
 ## Knowledge Base Coverage
 
@@ -34,46 +37,58 @@ This project provides an MCP server that exposes Redis best practices as callabl
 | **Streams** | Pattern selection | MEDIUM |
 | **Clustering** | Hash tags, read replicas | MEDIUM |
 | **Observability** | Commands, metrics | MEDIUM |
-| **Redis Query Engine** | Field types, index creation | HIGH |
-| **Vector Search** | Algorithm choice, RAG patterns | HIGH |
-| **Semantic Cache** | Caching best practices | MEDIUM |
+| **Redis Query Engine** | Dialect, field types, index creation, optimization | HIGH |
+| **Vector Search** | Algorithm choice, RAG patterns, hybrid search, index creation | HIGH |
+| **Semantic Cache** | LangCache usage, caching best practices | MEDIUM |
 
 ---
 
 ## Quick Start
 
-### VS Code Extension (Recommended)
-
-The easiest way to use Redis Best Practices MCP:
+### VS Code (Recommended)
 
 1. **Install from VS Code Marketplace:**
    - Search for "Redis Best Practices MCP" in the Extensions view
    - Or install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
 
-2. **Ask GitHub Copilot** about Redis:
+2. **Run the setup command:**
+   - Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
+   - Run **"Redis: Setup Copilot Instructions"**
+
+3. **Ask GitHub Copilot** about Redis:
    ```
    What's the best practice for Redis connection pooling?
    Show me anti-patterns for Redis key naming
    How should I structure keys for a multi-tenant application?
    ```
 
-### Manual Setup (Development)
+### Visual Studio (2022 v17.14+)
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/tf-gmail/mcp-redis-best-practices.git
-   cd mcp-redis-best-practices
-   ```
+1. **Install from VS Marketplace:**
+   - Go to **Extensions** → **Manage Extensions**
+   - Search for "Redis Best Practices MCP"
+   - Or install from [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-vs)
 
-2. **Install and build:**
-   ```bash
-   cd extension
-   npm install
-   npm run compile
-   npm run copy-knowledge
-   ```
+2. **Configure the MCP server:**
+   - Go to **Tools** → **Redis: Setup MCP Server**
+   - Go to **Tools** → **Redis: Setup Copilot Instructions**
 
-3. **Open VS Code in the project directory.** The `.vscode/mcp.json` will automatically configure the MCP server.
+3. **Restart Copilot Chat** and start asking Redis questions!
+
+### Standalone npm Package
+
+Use with any MCP-compatible client:
+
+```bash
+npx @redis-best-practices/mcp-server
+```
+
+Or install globally:
+
+```bash
+npm install -g @redis-best-practices/mcp-server
+redis-best-practices-mcp
+```
 
 ### Claude Desktop
 
@@ -83,8 +98,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "redis-best-practices": {
-      "command": "node",
-      "args": ["/path/to/mcp-redis-best-practices/extension/dist/mcp/server.js"]
+      "command": "npx",
+      "args": ["-y", "@redis-best-practices/mcp-server"]
     }
   }
 }
@@ -98,102 +113,129 @@ See [docs/claude-desktop-config.md](docs/claude-desktop-config.md) for detailed 
 
 The MCP server exposes 6 tools:
 
-### `get_best_practice`
-Get detailed best practices for a specific topic.
+| Tool | Description |
+|------|-------------|
+| `get_best_practice` | Get detailed guidance for a specific Redis topic |
+| `list_topics` | Browse all 29 best practice topics by category |
+| `search_best_practices` | Search across all practices with keywords |
+| `get_anti_patterns` | Learn what NOT to do with Redis |
+| `get_code_example` | Get production-ready code snippets |
+| `get_full_guide` | Get the complete best practices document |
 
+### Tool Details
+
+#### `get_best_practice`
 ```
 Parameters:
   - topic (required): Topic identifier (e.g., "conn-pooling", "data-key-naming")
 ```
 
-### `list_topics`
-List all available topics, optionally filtered by category.
-
+#### `list_topics`
 ```
 Parameters:
   - category (optional): Filter by category (e.g., "security", "connection")
 ```
 
-### `search_best_practices`
-Search across all practices by keyword.
-
+#### `search_best_practices`
 ```
 Parameters:
   - query (required): Search query
-  - max_results (optional): Maximum results (default: 5)
 ```
 
-### `get_anti_patterns`
-Get common anti-patterns to avoid.
-
+#### `get_anti_patterns`
 ```
 Parameters:
   - topic (optional): Filter by topic
 ```
 
-### `get_code_example`
-Get code examples for a specific pattern.
-
+#### `get_code_example`
 ```
 Parameters:
   - pattern (required): Pattern name (e.g., "connection-pool", "pipeline")
-  - language (required): Programming language (e.g., "python")
+  - language (required): Programming language ("python", "javascript", "java")
 ```
 
-### `get_full_guide`
-Get the complete Redis best practices guide.
-
+#### `get_full_guide`
 ```
 Parameters: none
 ```
 
 ---
 
-## Development
+## Project Structure
 
-### Project Structure
+This is a monorepo supporting multiple deployment targets:
 
 ```
 mcp-redis-best-practices/
-├── extension/                      # VS Code Extension (TypeScript)
-│   ├── package.json                # Extension manifest
-│   ├── tsconfig.json               # TypeScript configuration
+├── packages/
+│   └── mcp-server/              # Shared MCP server (npm package)
+│       ├── src/
+│       │   ├── index.ts         # Package exports
+│       │   ├── cli.ts           # CLI entry point
+│       │   ├── server.ts        # MCP server implementation
+│       │   ├── tools.ts         # Tool definitions
+│       │   ├── knowledge.ts     # Knowledge base loader
+│       │   └── types.ts         # Type definitions
+│       └── knowledge/rules/     # 29 markdown best practice files
+│
+├── extension/                   # VS Code extension
 │   ├── src/
-│   │   ├── extension.ts            # VS Code extension entry
-│   │   └── mcp/
-│   │       ├── server.ts           # MCP server implementation
-│   │       ├── tools.ts            # Tool definitions
-│   │       ├── knowledge.ts        # KnowledgeBase class
-│   │       ├── types.ts            # Type definitions
-│   │       └── knowledge/rules/    # Markdown rule files
-│   │           ├── _sections.md
-│   │           ├── conn-pooling.md
-│   │           ├── data-key-naming.md
-│   │           └── ...
-│   └── dist/                       # Compiled output
-├── mcp-server/                     # Legacy Python implementation
-├── .vscode/
-│   ├── mcp.json                    # MCP server configuration
-│   └── settings.json               # VS Code settings
+│   │   └── extension.ts         # VS Code-specific code
+│   └── package.json
+│
+├── visual-studio/               # Visual Studio extension
+│   ├── src/
+│   │   ├── RedisBestPracticesExtension.cs
+│   │   ├── SetupCopilotInstructionsCommand.cs
+│   │   └── SetupMCPServerCommand.cs
+│   └── RedisBestPracticesMCP.csproj
+│
+├── package.json                 # pnpm workspace root
+├── pnpm-workspace.yaml
 └── docs/
-    └── claude-desktop-config.md    # Claude Desktop setup guide
 ```
 
-### Building the Extension
+---
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm 8+ (recommended) or npm
+- .NET 8 SDK (for Visual Studio extension)
+
+### Building Everything
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm build
+
+# Or build individually:
+pnpm build:server      # MCP server package
+pnpm build:vscode      # VS Code extension
+pnpm build:vs          # Visual Studio extension
+```
+
+### Building the VS Code Extension
 
 ```bash
 cd extension
 npm install
-npm run compile
-npm run copy-knowledge
+npm run build
+npm run package  # Creates .vsix file
 ```
 
-### Packaging for Distribution
+### Building the Visual Studio Extension
 
 ```bash
-cd extension
-npm run package
-# Creates redis-best-practices-mcp-X.X.X.vsix
+cd visual-studio
+dotnet build
+# VSIX will be in bin/Debug or bin/Release
 ```
 
 ### Running Tests
@@ -205,10 +247,10 @@ npm test
 
 ### Adding New Rules
 
-1. Create a new markdown file in `extension/src/mcp/knowledge/rules/`
+1. Create a new markdown file in `packages/mcp-server/knowledge/rules/`
 2. Use the naming convention: `{prefix}-{rule-name}.md`
 3. Include YAML frontmatter with title, impact, and tags
-4. Rebuild: `npm run compile && npm run copy-knowledge`
+4. Rebuild: `pnpm build`
 
 **Rule template:**
 
@@ -226,37 +268,17 @@ Brief description of the rule.
 
 **Correct:** Description of correct approach.
 
-```python
+\`\`\`python
 # Example correct code
-```
+\`\`\`
 
 **Incorrect:** Description of what to avoid.
 
-```python
+\`\`\`python
 # Example incorrect code
-```
+\`\`\`
 
 Reference: [Link Title](https://url)
-```
-
----
-
-## Configuration
-
-### VS Code Settings
-
-The `.vscode/mcp.json` file configures the MCP server:
-
-```json
-{
-  "servers": {
-    "redis-best-practices": {
-      "command": "node",
-      "args": ["${workspaceFolder}/extension/dist/mcp/server.js"],
-      "description": "Redis development best practices as MCP tools"
-    }
-  }
-}
 ```
 
 ---
@@ -283,7 +305,7 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Add/update rules in the knowledge base
-4. Run tests: `pytest`
+4. Run tests
 5. Submit a pull request
 
 ### Rule Guidelines

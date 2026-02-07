@@ -1,0 +1,86 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Build the shared MCP server and VS Code extension
+  build-node:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Build MCP server
+        run: pnpm build:server
+        
+      - name: Build VS Code extension
+        run: pnpm build:vscode
+        
+      - name: Package VS Code extension
+        run: |
+          cd extension
+          npx vsce package --no-dependencies
+          
+      - name: Upload VS Code extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-extension
+          path: extension/*.vsix
+
+  # Build the Visual Studio extension on Windows
+  build-visual-studio:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          
+      - name: Install Node dependencies
+        run: pnpm install
+        
+      - name: Build MCP server
+        run: pnpm build:server
+        
+      - name: Restore NuGet packages
+        run: dotnet restore visual-studio/RedisBestPracticesMCP.csproj
+        
+      - name: Build Visual Studio extension
+        run: dotnet build visual-studio/RedisBestPracticesMCP.csproj -c Release
+        
+      - name: Upload Visual Studio extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: visualstudio-extension
+          path: visual-studio/bin/Release/**/*.vsix
+          if-no-files-found: warn

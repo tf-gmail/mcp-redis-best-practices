@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RedisBestPracticesMCP</RootNamespace>
+    <AssemblyName>RedisBestPracticesMCP</AssemblyName>
+    
+    <!-- VS Extension properties -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <CreateVsixContainer>true</CreateVsixContainer>
+    <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+    <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToOutputDirectory>true</CopyOutputSymbolsToOutputDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Extensibility" Version="17.14.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.14.*" />
+  </ItemGroup>
+
+  <!-- Bundle MCP Server -->
+  <ItemGroup>
+    <Content Include="mcp-bundle\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="BundleMCPServer" BeforeTargets="Build">
+    <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)..\packages\mcp-server" />
+    <MakeDir Directories="$(ProjectDir)mcp-bundle" />
+    <MakeDir Directories="$(ProjectDir)mcp-bundle\knowledge" />
+    <Copy SourceFiles="$(ProjectDir)..\packages\mcp-server\dist\**\*" DestinationFolder="$(ProjectDir)mcp-bundle\%(RecursiveDir)" />
+    <Copy SourceFiles="$(ProjectDir)..\packages\mcp-server\knowledge\**\*" DestinationFolder="$(ProjectDir)mcp-bundle\knowledge\%(RecursiveDir)" />
+  </Target>
+
+</Project>

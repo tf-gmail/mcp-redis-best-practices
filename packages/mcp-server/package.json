@@ -1,0 +1,64 @@
+{
+  "name": "@redis-best-practices/mcp-server",
+  "version": "0.2.0",
+  "description": "Redis Best Practices MCP Server - 29 rules for data structures, memory, security, vector search, and more",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "redis-best-practices-mcp": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js",
+      "require": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "knowledge"
+  ],
+  "scripts": {
+    "build": "tsc && npm run copy-knowledge",
+    "copy-knowledge": "mkdir -p dist/knowledge && cp -r knowledge/rules dist/knowledge/",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "redis",
+    "mcp",
+    "best-practices",
+    "model-context-protocol",
+    "copilot",
+    "ai",
+    "database",
+    "cache",
+    "vector-search"
+  ],
+  "author": "Thomas Findelkind",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tf-gmail/mcp-redis-best-practices",
+    "directory": "packages/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/tf-gmail/mcp-redis-best-practices/issues"
+  },
+  "homepage": "https://github.com/tf-gmail/mcp-redis-best-practices#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

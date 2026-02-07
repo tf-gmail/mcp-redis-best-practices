@@ -1,0 +1,30 @@
+{
+  "name": "mcp-redis-best-practices-monorepo",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Redis Best Practices MCP Server - Monorepo for VS Code and Visual Studio extensions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tf-gmail/mcp-redis-best-practices"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:server": "pnpm --filter @redis-best-practices/mcp-server build",
+    "build:vscode": "pnpm --filter redis-best-practices-mcp build",
+    "build:vs": "pnpm --filter redis-best-practices-vs build",
+    "clean": "pnpm -r clean",
+    "package:vscode": "pnpm --filter redis-best-practices-mcp package",
+    "package:vs": "pnpm --filter redis-best-practices-vs package",
+    "publish:server": "pnpm --filter @redis-best-practices/mcp-server publish",
+    "publish:vscode": "pnpm --filter redis-best-practices-mcp publish",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  }
+}

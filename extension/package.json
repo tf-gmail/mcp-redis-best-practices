@@ -2,7 +2,7 @@
   "name": "redis-best-practices-mcp",
   "displayName": "Redis Best Practices MCP",
   "description": "Get expert Redis guidance in your IDE. 29 best practices for data structures, memory, security, vector search, and more - powered by MCP for GitHub Copilot.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "ThomasFindelkind",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -12,7 +12,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tf-gmail/mcp-redis-best-practices"
+    "url": "https://github.com/tf-gmail/mcp-redis-best-practices",
+    "directory": "extension"
   },
   "bugs": {
     "url": "https://github.com/tf-gmail/mcp-redis-best-practices/issues"
@@ -69,9 +70,10 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run copy-knowledge",
+    "vscode:prepublish": "npm run build",
+    "build": "npm run compile && npm run bundle-server",
     "compile": "tsc -p ./",
-    "copy-knowledge": "mkdir -p dist/mcp/knowledge && cp -r src/mcp/knowledge/rules dist/mcp/knowledge/",
+    "bundle-server": "mkdir -p dist/mcp/knowledge && cp -r ../packages/mcp-server/dist/* dist/mcp/ && cp -r ../packages/mcp-server/knowledge/* dist/mcp/knowledge/",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
     "package": "vsce package",
