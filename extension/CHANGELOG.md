@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-07
+
+### Added
+
+- **6 new best practice rules** from official Redis Agent Skills:
+  - `rqe-dialect` - Use DIALECT 2 for query syntax
+  - `rqe-index-management` - Index lifecycle management
+  - `rqe-query-optimization` - Query performance optimization
+  - `semantic-cache-langcache-usage` - LangCache usage patterns
+  - `vector-hybrid-search` - Hybrid search with filters
+  - `vector-index-creation` - Vector index configuration
+- Now includes all 29 rules from the official Redis Agent Skills repository
+
 ## [0.1.4] - 2026-02-06
 
 ### Changed
