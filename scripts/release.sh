@@ -7,6 +7,7 @@
 #   ./scripts/release.sh [patch|minor|major]    # Bump version and publish
 #   ./scripts/release.sh --publish-only         # Publish without version bump
 #   ./scripts/release.sh --dry-run [patch|minor|major]  # Preview changes
+#   ./scripts/release.sh --setup-secrets        # Configure GitHub Actions secrets
 #
 # Environment variables:
 #   VSCE_PAT          - VS Code Marketplace Personal Access Token
@@ -30,6 +31,83 @@ log_info() { echo -e "${BLUE}ℹ${NC} $1"; }
 log_success() { echo -e "${GREEN}✓${NC} $1"; }
 log_warn() { echo -e "${YELLOW}⚠${NC} $1"; }
 log_error() { echo -e "${RED}✗${NC} $1"; }
+
+# Check if gh CLI is available
+has_gh_cli() {
+    command -v gh &> /dev/null
+}
+
+# Setup GitHub secrets
+setup_github_secrets() {
+    if ! has_gh_cli; then
+        log_error "GitHub CLI (gh) not installed"
+        echo "Install with: brew install gh"
+        exit 1
+    fi
+    
+    # Check if logged in
+    if ! gh auth status &> /dev/null; then
+        log_info "Please login to GitHub CLI first:"
+        gh auth login
+    fi
+    
+    echo ""
+    log_info "Setting up GitHub Actions secrets for automated releases"
+    echo ""
+    
+    # VSCE_PAT
+    if [[ -n "${VSCE_PAT:-}" ]]; then
+        echo "$VSCE_PAT" | gh secret set VSCE_PAT
+        log_success "VSCE_PAT secret set from environment variable"
+    else
+        echo -n "Enter VS Code Marketplace PAT (or press Enter to skip): "
+        read -s vsce_pat
+        echo ""
+        if [[ -n "$vsce_pat" ]]; then
+            echo "$vsce_pat" | gh secret set VSCE_PAT
+            log_success "VSCE_PAT secret set"
+        else
+            log_warn "Skipped VSCE_PAT"
+        fi
+    fi
+    
+    # OVSX_PAT (optional, for Open VSX Registry)
+    echo -n "Enter Open VSX PAT (optional, press Enter to skip): "
+    read -s ovsx_pat
+    echo ""
+    if [[ -n "$ovsx_pat" ]]; then
+        echo "$ovsx_pat" | gh secret set OVSX_PAT
+        log_success "OVSX_PAT secret set"
+    fi
+    
+    echo ""
+    log_success "GitHub secrets configured!"
+    echo ""
+    echo "Now you can release by pushing a tag:"
+    echo "  git tag v0.4.0 && git push --tags"
+    echo ""
+    echo "Or run: ./scripts/release.sh patch"
+}
+
+# Save PAT to GitHub secrets (called after successful publish)
+save_pat_to_github() {
+    if ! has_gh_cli; then
+        return 0
+    fi
+    
+    # Check if secret already exists by trying to get repo info
+    if gh secret list 2>/dev/null | grep -q VSCE_PAT; then
+        return 0  # Already set
+    fi
+    
+    echo ""
+    read -p "Save VSCE_PAT to GitHub secrets for automated releases? [Y/n] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        echo "$VSCE_PAT" | gh secret set VSCE_PAT
+        log_success "VSCE_PAT saved to GitHub secrets"
+    fi
+}
 
 # Current versions
 get_vscode_version() {
@@ -137,16 +215,24 @@ publish_vscode() {
     fi
     
     if [[ -z "${VSCE_PAT:-}" ]]; then
-        log_error "VSCE_PAT environment variable not set"
-        log_info "Get a PAT from: https://dev.azure.com/your-org/_usersSettings/tokens"
-        log_info "Required scopes: Marketplace > Manage"
-        return 1
+        log_warn "VSCE_PAT environment variable not set"
+        echo -n "Enter VS Code Marketplace PAT (or press Enter to skip): "
+        read -s VSCE_PAT
+        echo ""
+        if [[ -z "$VSCE_PAT" ]]; then
+            log_warn "Skipping VS Code Marketplace publish"
+            return 0
+        fi
+        export VSCE_PAT
     fi
     
     log_info "Publishing to VS Code Marketplace..."
     cd "$ROOT_DIR/extension"
     npx vsce publish --pat "$VSCE_PAT" --no-dependencies
     log_success "Published to VS Code Marketplace"
+    
+    # Offer to save PAT to GitHub secrets
+    save_pat_to_github
 }
 
 publish_vs() {
@@ -203,6 +289,10 @@ main() {
                 publish_only=true
                 shift
                 ;;
+            --setup-secrets)
+                setup_github_secrets
+                exit 0
+                ;;
             patch|minor|major)
                 bump_type="$1"
                 shift
@@ -213,6 +303,7 @@ main() {
                 echo "Options:"
                 echo "  --dry-run        Preview changes without making them"
                 echo "  --publish-only   Publish current version without bumping"
+                echo "  --setup-secrets  Configure GitHub Actions secrets interactively"
                 echo "  -h, --help       Show this help"
                 echo ""
                 echo "Environment variables:"
