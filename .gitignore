@@ -32,6 +32,12 @@ extension/dist/
 extension/*.vsix
 extension/out/
 
+# Visual Studio Extension
+visual-studio/bin/
+visual-studio/obj/
+visual-studio/mcp-bundle/
+visual-studio/*.vsix
+
 # Testing
 coverage/
 .nyc_output/

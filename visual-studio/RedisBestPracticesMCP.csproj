@@ -9,6 +9,10 @@
     <!-- VS Extensibility SDK properties -->
     <ExtensionInstallationRoot>Extensions</ExtensionInstallationRoot>
     <ExtensionInstallationFolder>RedisBestPractices</ExtensionInstallationFolder>
+    
+    <!-- Generate VSIX package -->
+    <GenerateVsixContainer>true</GenerateVsixContainer>
+    <VsixOutputPath>$(OutputPath)</VsixOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,16 +21,40 @@
     <PackageReference Include="Nerdbank.Streams" Version="2.12.87" />
   </ItemGroup>
 
-  <!-- Bundle MCP Server -->
+  <!-- Bundle MCP Server files into extension -->
   <ItemGroup>
     <Content Include="mcp-bundle\**\*" Condition="Exists('mcp-bundle')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>mcp-bundle\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
   </ItemGroup>
 
+  <!-- Build and bundle MCP server before VS extension build -->
   <Target Name="BundleMCPServer" BeforeTargets="Build">
-    <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)..\packages\mcp-server" ContinueOnError="true" />
-    <MakeDir Directories="$(ProjectDir)mcp-bundle" Condition="!Exists('$(ProjectDir)mcp-bundle')" />
+    <!-- Build the MCP server package -->
+    <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)..\packages\mcp-server" ContinueOnError="false" />
+    
+    <!-- Create bundle directory -->
+    <MakeDir Directories="$(ProjectDir)mcp-bundle" />
+    <MakeDir Directories="$(ProjectDir)mcp-bundle\knowledge\rules" />
+    
+    <!-- Copy compiled JS files -->
+    <ItemGroup>
+      <McpDistFiles Include="$(ProjectDir)..\packages\mcp-server\dist\**\*.*" />
+      <McpKnowledgeFiles Include="$(ProjectDir)..\packages\mcp-server\knowledge\rules\**\*.*" />
+    </ItemGroup>
+    
+    <Copy SourceFiles="@(McpDistFiles)" 
+          DestinationFolder="$(ProjectDir)mcp-bundle\%(RecursiveDir)" 
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(McpKnowledgeFiles)" 
+          DestinationFolder="$(ProjectDir)mcp-bundle\knowledge\rules\%(RecursiveDir)" 
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Clean up bundle directory -->
+  <Target Name="CleanMcpBundle" AfterTargets="Clean">
+    <RemoveDir Directories="$(ProjectDir)mcp-bundle" />
   </Target>
 
 </Project>
