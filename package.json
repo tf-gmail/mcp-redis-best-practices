@@ -1,6 +1,6 @@
 {
   "name": "mcp-redis-best-practices-monorepo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Redis Best Practices MCP Server - Monorepo for VS Code and Visual Studio extensions",
   "repository": {
@@ -18,6 +18,10 @@
     "package:vs": "pnpm --filter redis-best-practices-vs package",
     "publish:server": "pnpm --filter @redis-best-practices/mcp-server publish",
     "publish:vscode": "pnpm --filter redis-best-practices-mcp publish",
+    "release": "./scripts/release.sh",
+    "release:patch": "./scripts/release.sh patch",
+    "release:minor": "./scripts/release.sh minor",
+    "release:major": "./scripts/release.sh major",
     "test": "pnpm -r test"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>RedisBestPracticesMCP</RootNamespace>
     <AssemblyName>RedisBestPracticesMCP</AssemblyName>
+    <Version>0.3.0</Version>
     
     <!-- VS Extensibility SDK properties -->
     <ExtensionInstallationRoot>Extensions</ExtensionInstallationRoot>

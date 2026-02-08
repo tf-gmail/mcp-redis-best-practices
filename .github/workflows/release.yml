@@ -1,0 +1,223 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.4.0)'
+        required: true
+        type: string
+      publish_vscode:
+        description: 'Publish to VS Code Marketplace'
+        required: true
+        type: boolean
+        default: true
+      publish_vs:
+        description: 'Publish to Visual Studio Marketplace'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  release-vscode:
+    name: Release VS Code Extension
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || inputs.publish_vscode }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build MCP server
+        run: pnpm --filter @redis-best-practices/mcp-server build
+
+      - name: Build VS Code extension
+        run: pnpm --filter redis-best-practices-mcp build
+
+      - name: Package extension
+        run: |
+          cd extension
+          npx vsce package --no-dependencies
+
+      - name: Get version from tag
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=${{ inputs.version }}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-vsix-${{ steps.version.outputs.version }}
+          path: extension/*.vsix
+
+      - name: Publish to VS Code Marketplace
+        if: ${{ env.VSCE_PAT != '' }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          cd extension
+          npx vsce publish --pat "$VSCE_PAT" --no-dependencies
+          echo "✓ Published to VS Code Marketplace"
+
+      - name: Publish to Open VSX Registry
+        if: ${{ env.OVSX_PAT != '' }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          cd extension
+          npx ovsx publish *.vsix --pat "$OVSX_PAT"
+          echo "✓ Published to Open VSX Registry"
+
+  release-visual-studio:
+    name: Release Visual Studio Extension
+    runs-on: windows-latest
+    if: ${{ github.event_name == 'push' || inputs.publish_vs }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build MCP server
+        run: pnpm --filter @redis-best-practices/mcp-server build
+
+      - name: Build Visual Studio extension
+        working-directory: visual-studio
+        run: dotnet publish -c Release
+
+      - name: Get version from tag
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=${{ inputs.version }}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload VS extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: visualstudio-extension-${{ steps.version.outputs.version }}
+          path: visual-studio/bin/Release/net8.0-windows/publish/
+
+      # Note: VS Marketplace publishing typically requires manual upload or VsixPublisher.exe
+      # The artifact is uploaded for manual publishing
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [release-vscode, release-visual-studio]
+    if: github.event_name == 'push'
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Download VS Code VSIX
+        uses: actions/download-artifact@v4
+        with:
+          name: vscode-vsix-${{ steps.version.outputs.version }}
+          path: artifacts/vscode
+
+      - name: Download VS extension
+        uses: actions/download-artifact@v4
+        with:
+          name: visualstudio-extension-${{ steps.version.outputs.version }}
+          path: artifacts/visualstudio
+
+      - name: Create zip for VS extension
+        run: |
+          cd artifacts/visualstudio
+          zip -r ../RedisBestPracticesMCP-vs-${{ steps.version.outputs.version }}.zip .
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits since last tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [[ -n "$PREV_TAG" ]]; then
+            CHANGELOG=$(git log --pretty=format:"- %s" "$PREV_TAG"..HEAD)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s" -10)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ steps.version.outputs.version }}
+          body: |
+            ## Redis Best Practices MCP v${{ steps.version.outputs.version }}
+            
+            ### Installation
+            
+            **VS Code:**
+            - Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ThomasFindelkind.redis-best-practices-mcp)
+            - Or download the `.vsix` file below and install manually
+            
+            **Visual Studio 2022 (17.14+):**
+            - Download the VS extension zip below
+            - Extract and follow setup instructions in README
+            
+            ### Changes
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### Checksums
+            
+            ```
+            $(sha256sum artifacts/vscode/*.vsix artifacts/*.zip 2>/dev/null || echo "See attached files")
+            ```
+          files: |
+            artifacts/vscode/*.vsix
+            artifacts/*.zip
+          draft: false
+          prerelease: false

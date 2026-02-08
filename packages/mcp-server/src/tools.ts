@@ -12,22 +12,19 @@ import { KnowledgeBase } from './knowledge.js';
 export const TOOLS = [
     {
         name: 'get_best_practice',
-        description: `Get Redis best practices for a specific topic.
+        description: `**CALL THIS TOOL** when writing, reviewing, or debugging code that uses Redis clients like StackExchange.Redis, ioredis, redis-py, Jedis, Lettuce, or go-redis.
 
-Returns detailed guidance including:
-- Why the practice matters
-- Correct code examples with explanations
-- Incorrect patterns to avoid (anti-patterns)
-- Performance impact and quantified benefits
-- Links to official Redis documentation
+Trigger scenarios:
+1. Implementing connection multiplexing or connection pooling
+2. Designing key naming strategies (namespace:entity:id patterns)
+3. Choosing between Redis data structures (String vs Hash vs Sorted Set)
+4. Implementing caching patterns (cache-aside, write-through, TTL strategy)
+5. Optimizing Redis Query Engine (RQE) indexes and FT.SEARCH queries
+6. Setting up vector similarity search with HNSW or FLAT indexes
+7. Configuring Redis Sentinel or Cluster sharding
+8. Implementing rate limiting or session storage
 
-Use this when you need specific guidance on a Redis topic like:
-- Key naming conventions
-- Data structure selection
-- Connection pooling
-- Pipelining
-- Memory management
-- Security configuration`,
+Returns: Best practices with correct/incorrect code examples, performance impact, and official Redis documentation links.`,
         inputSchema: {
             type: 'object',
             properties: {
@@ -41,13 +38,14 @@ Use this when you need specific guidance on a Redis topic like:
     },
     {
         name: 'list_topics',
-        description: `List all available Redis best practice topics.
+        description: `Browse available Redis best practice topics by category.
 
-Returns topics organized by category and impact level:
-- HIGH impact: Data structures, connections, memory, security, query engine, vector search
-- MEDIUM impact: JSON, streams, pub/sub, clustering, semantic caching, observability
+Use this to discover what guidance is available when:
+- Starting a new Redis integration project
+- Conducting a Redis code review
+- Planning Redis architecture for a new service
 
-Optionally filter by category to see only relevant topics.`,
+Categories: data structures, connections, memory, TTL, security, JSON, streams, clustering, vector search, semantic caching, observability.`,
         inputSchema: {
             type: 'object',
             properties: {
@@ -62,17 +60,16 @@ Optionally filter by category to see only relevant topics.`,
     },
     {
         name: 'search_best_practices',
-        description: `Search across all Redis best practices using keywords.
+        description: `Search Redis best practices by keyword or problem description.
 
-Performs a semantic search across all rules and returns matching practices
-ranked by relevance. Use this when you're not sure which topic to look up
-or when searching for specific patterns like:
-- "how to avoid hot keys"
-- "rate limiting"
-- "cache stampede"
-- "KEYS command alternatives"
-- "large values"
-- "blocking operations"`,
+**HIGH-PRIORITY SIGNALS** - Call this tool when you see:
+- Performance issues: "hot keys", "cache stampede", "thundering herd", "latency spikes"
+- Memory concerns: "memory leak", "OOM", "eviction", "big keys", "large values"
+- Dangerous operations: "KEYS *", "SMEMBERS on large set", "HGETALL", "FLUSHALL"
+- Architecture questions: "Redis Sentinel", "Cluster sharding", "pipelining", "Lua scripting"
+- Data modeling: "choose data structure", "sorted set vs list", "hash vs string"
+
+Returns ranked matches with relevance scores.`,
         inputSchema: {
             type: 'object',
             properties: {
@@ -86,16 +83,18 @@ or when searching for specific patterns like:
     },
     {
         name: 'get_anti_patterns',
-        description: `Get common Redis anti-patterns and mistakes to avoid.
+        description: `**MANDATORY CHECK** before generating Redis code that uses potentially dangerous operations.
 
-Returns a list of things NOT to do, organized by category:
-- Blocking commands in production (KEYS *, SMEMBERS on large sets)
-- Missing key expiration leading to memory bloat
-- Connection leaks from not using pools
-- Big keys that cause latency spikes
-- Inefficient data structure choices
+**MUST CALL THIS TOOL** when code contains:
+- KEYS * or KEYS pattern (use SCAN instead)
+- SMEMBERS/HGETALL/LRANGE 0 -1 on potentially large collections
+- FLUSHALL or FLUSHDB in production code
+- Missing EXPIRE/PEXPIRE on cached data
+- Single connection without pooling under load
+- Synchronous operations in async contexts
+- Unbounded memory growth patterns
 
-Optionally filter by topic to see category-specific anti-patterns.`,
+Returns: Anti-patterns with severity, correct alternatives, and O(n) complexity warnings.`,
         inputSchema: {
             type: 'object',
             properties: {
@@ -109,15 +108,21 @@ Optionally filter by topic to see category-specific anti-patterns.`,
     },
     {
         name: 'get_code_example',
-        description: `Get working code examples for a specific Redis pattern.
+        description: `Get production-ready Redis code examples for common patterns.
 
-Returns production-ready code snippets with:
-- Complete, runnable examples
-- Comments explaining each step
-- Error handling patterns
-- Configuration options
+Call when implementing:
+- Connection pooling setup (redis-py, ioredis, Jedis, Lettuce)
+- Pipelining for batch operations (reduce RTT by 10-100x)
+- Transactions with MULTI/EXEC and optimistic locking
+- Pub/Sub messaging patterns
+- Stream consumers with consumer groups (XREADGROUP)
+- Rate limiting with sliding window or token bucket
+- Cache-aside pattern with proper invalidation
+- Session storage with automatic expiration
+- Leaderboards with ZADD/ZRANGE
+- Vector similarity search with RedisVL
 
-Supports multiple languages: Python (redis-py), Node.js (ioredis), Java (Jedis/Lettuce).`,
+Returns: Complete, runnable code with error handling and comments. Languages: Python, JavaScript/Node.js, Java.`,
         inputSchema: {
             type: 'object',
             properties: {
@@ -137,24 +142,16 @@ Supports multiple languages: Python (redis-py), Node.js (ioredis), Java (Jedis/L
     },
     {
         name: 'get_full_guide',
-        description: `Get the complete Redis best practices guide.
+        description: `Get the complete Redis best practices guide (all 29 rules).
 
-Returns the full AGENTS.md document containing all 29 rules across 11 categories.
-Use this when you need comprehensive context about Redis best practices or
-when working on a large Redis implementation that touches multiple areas.
+**Call when:**
+- Starting a brand new Redis integration project
+- Conducting a comprehensive Redis architecture review
+- Preparing Redis production readiness checklist
+- Onboarding developers to Redis best practices
 
-Categories included:
-1. Data Structures & Keys (HIGH)
-2. Memory & Expiration (HIGH)
-3. Connection & Performance (HIGH)
-4. JSON Documents (MEDIUM)
-5. Redis Query Engine (HIGH)
-6. Vector Search & RedisVL (HIGH)
-7. Semantic Caching (MEDIUM)
-8. Streams & Pub/Sub (MEDIUM)
-9. Clustering & Replication (MEDIUM)
-10. Security (HIGH)
-11. Observability (MEDIUM)`,
+Returns the full AGENTS.md document with 11 categories:
+Data Structures, Memory/TTL, Connections, JSON, Query Engine, Vector Search, Semantic Caching, Streams, Clustering, Security, Observability.`,
         inputSchema: {
             type: 'object',
             properties: {},
