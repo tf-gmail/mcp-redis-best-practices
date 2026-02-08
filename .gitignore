@@ -36,6 +36,7 @@ extension/out/
 visual-studio/bin/
 visual-studio/obj/
 visual-studio/mcp-bundle/
+visual-studio/publish/
 visual-studio/*.vsix
 
 # Testing

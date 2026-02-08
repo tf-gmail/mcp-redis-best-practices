@@ -9,10 +9,6 @@
     <!-- VS Extensibility SDK properties -->
     <ExtensionInstallationRoot>Extensions</ExtensionInstallationRoot>
     <ExtensionInstallationFolder>RedisBestPractices</ExtensionInstallationFolder>
-    
-    <!-- Generate VSIX package -->
-    <GenerateVsixContainer>true</GenerateVsixContainer>
-    <VsixOutputPath>$(OutputPath)</VsixOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

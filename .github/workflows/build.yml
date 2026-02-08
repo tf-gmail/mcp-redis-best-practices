@@ -77,10 +77,13 @@ jobs:
         
       - name: Build Visual Studio extension
         run: dotnet build visual-studio/RedisBestPracticesMCP.csproj -c Release
+      
+      - name: Publish Visual Studio extension
+        run: dotnet publish visual-studio/RedisBestPracticesMCP.csproj -c Release -o visual-studio/publish
         
       - name: Upload Visual Studio extension artifact
         uses: actions/upload-artifact@v4
         with:
           name: visualstudio-extension
-          path: visual-studio/bin/Release/**/*.vsix
+          path: visual-studio/publish/
           if-no-files-found: warn
