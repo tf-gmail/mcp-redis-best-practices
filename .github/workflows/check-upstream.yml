@@ -1,0 +1,126 @@
+name: Check Upstream Skills
+
+on:
+  schedule:
+    # Run daily at 9:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for upstream updates
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the latest commit from redis/agent-skills
+          UPSTREAM_REPO="redis/agent-skills"
+          UPSTREAM_BRANCH="main"
+          
+          # Fetch latest commit info from upstream
+          LATEST_COMMIT=$(gh api repos/${UPSTREAM_REPO}/commits/${UPSTREAM_BRANCH} --jq '.sha')
+          LATEST_DATE=$(gh api repos/${UPSTREAM_REPO}/commits/${UPSTREAM_BRANCH} --jq '.commit.committer.date')
+          LATEST_MESSAGE=$(gh api repos/${UPSTREAM_REPO}/commits/${UPSTREAM_BRANCH} --jq '.commit.message' | head -1)
+          
+          echo "latest_commit=${LATEST_COMMIT}" >> $GITHUB_OUTPUT
+          echo "latest_date=${LATEST_DATE}" >> $GITHUB_OUTPUT
+          echo "latest_message=${LATEST_MESSAGE}" >> $GITHUB_OUTPUT
+          
+          # Check if we have a stored last-checked commit
+          LAST_CHECKED_FILE=".github/.upstream-last-checked"
+          if [ -f "$LAST_CHECKED_FILE" ]; then
+            LAST_CHECKED=$(cat "$LAST_CHECKED_FILE")
+          else
+            LAST_CHECKED=""
+          fi
+          
+          echo "last_checked=${LAST_CHECKED}" >> $GITHUB_OUTPUT
+          
+          if [ "$LATEST_COMMIT" != "$LAST_CHECKED" ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "::notice::Upstream redis/agent-skills has new commits since last check"
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "::notice::No new updates in upstream redis/agent-skills"
+          fi
+
+      - name: Get recent changes
+        if: steps.check.outputs.has_updates == 'true'
+        id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          UPSTREAM_REPO="redis/agent-skills"
+          LAST_CHECKED="${{ steps.check.outputs.last_checked }}"
+          
+          if [ -n "$LAST_CHECKED" ]; then
+            # Get commits since last check
+            COMMITS=$(gh api repos/${UPSTREAM_REPO}/compare/${LAST_CHECKED}...${{ steps.check.outputs.latest_commit }} --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "Unable to compare commits")
+          else
+            # Get last 10 commits if no previous check
+            COMMITS=$(gh api repos/${UPSTREAM_REPO}/commits --jq '.[0:10] | map("- " + .commit.message | split("\n")[0]) | join("\n")')
+          fi
+          
+          # Store in file for multiline output
+          echo "$COMMITS" > /tmp/commits.txt
+          echo "commits_file=/tmp/commits.txt" >> $GITHUB_OUTPUT
+
+      - name: Create or update issue
+        if: steps.check.outputs.has_updates == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_TITLE="Upstream redis/agent-skills has updates"
+          COMMITS=$(cat /tmp/commits.txt)
+          
+          ISSUE_BODY="## Upstream Updates Detected
+
+The [redis/agent-skills](https://github.com/redis/agent-skills) repository has new commits.
+
+**Latest commit:** \`${{ steps.check.outputs.latest_commit }}\`
+**Date:** ${{ steps.check.outputs.latest_date }}
+**Message:** ${{ steps.check.outputs.latest_message }}
+
+### Recent Changes
+${COMMITS}
+
+### Action Required
+Please review the upstream changes and sync relevant updates to this repository.
+
+1. Compare changes: https://github.com/redis/agent-skills/compare/${{ steps.check.outputs.last_checked }}...${{ steps.check.outputs.latest_commit }}
+2. Update knowledge rules in \`packages/mcp-server/knowledge/rules/\` if needed
+3. Update the tracking file after syncing
+
+---
+*This issue was automatically created by the check-upstream workflow.*"
+
+          # Check if issue already exists
+          EXISTING_ISSUE=$(gh issue list --search "in:title ${ISSUE_TITLE}" --state open --json number --jq '.[0].number')
+          
+          if [ -n "$EXISTING_ISSUE" ]; then
+            # Update existing issue
+            gh issue comment "$EXISTING_ISSUE" --body "$ISSUE_BODY"
+            echo "Updated existing issue #${EXISTING_ISSUE}"
+          else
+            # Create new issue
+            gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "upstream-sync"
+            echo "Created new issue"
+          fi
+
+      - name: Update tracking file
+        if: steps.check.outputs.has_updates == 'true'
+        run: |
+          mkdir -p .github
+          echo "${{ steps.check.outputs.latest_commit }}" > .github/.upstream-last-checked
+          
+      - name: Commit tracking file
+        if: steps.check.outputs.has_updates == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update upstream tracking [${{ steps.check.outputs.latest_commit }}]"
+          file_pattern: .github/.upstream-last-checked
