@@ -13,7 +13,7 @@ async function bundle() {
 
   // Bundle the MCP server with all dependencies
   await esbuild.build({
-    entryPoints: [path.join(__dirname, '..', '..', 'packages', 'mcp-server', 'src', 'server.ts')],
+    entryPoints: [path.join(__dirname, '..', '..', 'packages', 'mcp-server', 'src', 'cli.ts')],
     bundle: true,
     platform: 'node',
     target: 'node18',
