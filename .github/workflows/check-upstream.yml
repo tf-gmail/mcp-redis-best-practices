@@ -74,41 +74,48 @@ jobs:
         if: steps.check.outputs.has_updates == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST_COMMIT: ${{ steps.check.outputs.latest_commit }}
+          LATEST_DATE: ${{ steps.check.outputs.latest_date }}
+          LATEST_MESSAGE: ${{ steps.check.outputs.latest_message }}
+          LAST_CHECKED: ${{ steps.check.outputs.last_checked }}
         run: |
           ISSUE_TITLE="Upstream redis/agent-skills has updates"
           COMMITS=$(cat /tmp/commits.txt)
           
-          ISSUE_BODY="## Upstream Updates Detected
-
-The [redis/agent-skills](https://github.com/redis/agent-skills) repository has new commits.
-
-**Latest commit:** \`${{ steps.check.outputs.latest_commit }}\`
-**Date:** ${{ steps.check.outputs.latest_date }}
-**Message:** ${{ steps.check.outputs.latest_message }}
-
-### Recent Changes
-${COMMITS}
-
-### Action Required
-Please review the upstream changes and sync relevant updates to this repository.
-
-1. Compare changes: https://github.com/redis/agent-skills/compare/${{ steps.check.outputs.last_checked }}...${{ steps.check.outputs.latest_commit }}
-2. Update knowledge rules in \`packages/mcp-server/knowledge/rules/\` if needed
-3. Update the tracking file after syncing
-
----
-*This issue was automatically created by the check-upstream workflow.*"
-
+          cat > /tmp/issue_body.md << 'ISSUE_EOF'
+          ## Upstream Updates Detected
+          
+          The [redis/agent-skills](https://github.com/redis/agent-skills) repository has new commits.
+          ISSUE_EOF
+          
+          cat >> /tmp/issue_body.md << ISSUE_EOF
+          
+          **Latest commit:** \`${LATEST_COMMIT}\`
+          **Date:** ${LATEST_DATE}
+          **Message:** ${LATEST_MESSAGE}
+          
+          ### Recent Changes
+          ${COMMITS}
+          
+          ### Action Required
+          Please review the upstream changes and sync relevant updates to this repository.
+          
+          1. Compare changes: https://github.com/redis/agent-skills/compare/${LAST_CHECKED}...${LATEST_COMMIT}
+          2. Update knowledge rules in \`packages/mcp-server/knowledge/rules/\` if needed
+          3. Update the tracking file after syncing
+          
+          ---
+          *This issue was automatically created by the check-upstream workflow.*
+          ISSUE_EOF
+          
           # Check if issue already exists
           EXISTING_ISSUE=$(gh issue list --search "in:title ${ISSUE_TITLE}" --state open --json number --jq '.[0].number')
           
           if [ -n "$EXISTING_ISSUE" ]; then
-            # Update existing issue
-            gh issue comment "$EXISTING_ISSUE" --body "$ISSUE_BODY"
+            gh issue comment "$EXISTING_ISSUE" --body-file /tmp/issue_body.md
             echo "Updated existing issue #${EXISTING_ISSUE}"
           else
-            # Create new issue
-            gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "upstream-sync"
+            gh issue create --title "$ISSUE_TITLE" --body-file /tmp/issue_body.md --label "upstream-sync"
             echo "Created new issue"
           fi
 
