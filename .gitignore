@@ -42,3 +42,4 @@ visual-studio/*.vsix
 # Testing
 coverage/
 .nyc_output/
+.vscode/mcp.json
