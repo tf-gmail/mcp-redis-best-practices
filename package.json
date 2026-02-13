@@ -1,6 +1,6 @@
 {
   "name": "mcp-redis-best-practices-monorepo",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Redis Best Practices MCP Server - Monorepo for VS Code and Visual Studio extensions",
   "repository": {

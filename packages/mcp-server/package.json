@@ -1,6 +1,6 @@
 {
   "name": "@redis-best-practices/mcp-server",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Redis Best Practices MCP Server - 29 rules for data structures, memory, security, vector search, and more",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
