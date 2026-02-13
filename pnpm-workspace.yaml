@@ -1,4 +1,10 @@
 packages:
-  - 'packages/*'
-  - 'extension'
-  - 'visual-studio'
+  - packages/*
+  - extension
+  - visual-studio
+
+ignoredBuiltDependencies:
+  - '@vscode/vsce-sign'
+  - esbuild
+  - keytar
+  - sharp
